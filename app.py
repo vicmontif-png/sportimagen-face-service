@@ -13,7 +13,8 @@ print("Cargando modelo InsightFace (buffalo_l)...")
 face_app = None
 try:
     from insightface.app import FaceAnalysis
-    face_app = FaceAnalysis(name='buffalo_l', providers=['CPUExecutionProvider'])
+    # Solo cargamos detection y recognition para consumir menos de 300 MB de RAM y caber en planes gratuitos
+    face_app = FaceAnalysis(name='buffalo_l', allowed_modules=['detection', 'recognition'], providers=['CPUExecutionProvider'])
     face_app.prepare(ctx_id=0, det_size=(640, 640))
     print(">>> [OK] InsightFace ArcFace 512-D listo y escuchando en la nube!")
 except Exception as e:
