@@ -17,9 +17,12 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-# Descarga anticipada del modelo InsightFace buffalo_l (solo detección y reconocimiento para ahorrar RAM)
-RUN python -c "from insightface.app import FaceAnalysis; app = FaceAnalysis(name='buffalo_l', allowed_modules=['detection', 'recognition'], providers=['CPUExecutionProvider']); app.prepare(ctx_id=0, det_size=(640, 640))" || true
+# Descarga anticipada del modelo InsightFace buffalo_l (solo detección y reconocimiento)
+RUN python -c "from insightface.app import FaceAnalysis; app = FaceAnalysis(name='buffalo_l', allowed_modules=['detection', 'recognition'], providers=['CPUExecutionProvider']); app.prepare(ctx_id=0, det_size=(480, 480))" || true
 
 EXPOSE 5000
 
-CMD ["gunicorn", "app:app", "--bind", "0.0.0.0:5000", "--workers", "1", "--threads", "1", "--timeout", "120"]
+ENV PORT=5000
+ENV PYTHONUNBUFFERED=1
+
+CMD ["python", "app.py"]

@@ -1,5 +1,11 @@
 # -*- coding: utf-8 -*-
 import os
+os.environ["OMP_NUM_THREADS"] = "1"
+os.environ["OPENBLAS_NUM_THREADS"] = "1"
+os.environ["MKL_NUM_THREADS"] = "1"
+os.environ["VECLIB_MAXIMUM_THREADS"] = "1"
+os.environ["NUMEXPR_NUM_THREADS"] = "1"
+
 import sys
 import base64
 import numpy as np
@@ -8,14 +14,13 @@ from flask import Flask, request, jsonify
 
 app = Flask(__name__)
 
-# Cargar InsightFace una sola vez en memoria
+# Cargar InsightFace una sola vez en memoria (solo módulos necesarios en modo ultraligero)
 print("Cargando modelo InsightFace (buffalo_l)...")
 face_app = None
 try:
     from insightface.app import FaceAnalysis
-    # Solo cargamos detection y recognition para consumir menos de 300 MB de RAM y caber en planes gratuitos
     face_app = FaceAnalysis(name='buffalo_l', allowed_modules=['detection', 'recognition'], providers=['CPUExecutionProvider'])
-    face_app.prepare(ctx_id=0, det_size=(640, 640))
+    face_app.prepare(ctx_id=0, det_size=(480, 480))
     print(">>> [OK] InsightFace ArcFace 512-D listo y escuchando en la nube!")
 except Exception as e:
     print(f"Error cargando InsightFace: {e}")
@@ -97,5 +102,4 @@ def get_embedding():
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
-    app.run(host='0.0.0.0', port=port, debug=False)
-
+    app.run(host='0.0.0.0', port=port, threaded=False, processes=1)
