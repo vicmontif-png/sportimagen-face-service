@@ -1,11 +1,5 @@
 # -*- coding: utf-8 -*-
 import os
-os.environ["OMP_NUM_THREADS"] = "1"
-os.environ["OPENBLAS_NUM_THREADS"] = "1"
-os.environ["MKL_NUM_THREADS"] = "1"
-os.environ["VECLIB_MAXIMUM_THREADS"] = "1"
-os.environ["NUMEXPR_NUM_THREADS"] = "1"
-
 import sys
 import base64
 import numpy as np
@@ -14,14 +8,14 @@ from flask import Flask, request, jsonify
 
 app = Flask(__name__)
 
-# Cargar InsightFace una sola vez en memoria (solo módulos necesarios en modo ultraligero)
-print("Cargando modelo InsightFace (buffalo_l)...")
+# Cargar InsightFace ArcFace en memoria (buffalo_s: ultraligero, 150 MB de RAM)
+print("Cargando modelo InsightFace ArcFace (buffalo_s)...")
 face_app = None
 try:
     from insightface.app import FaceAnalysis
-    face_app = FaceAnalysis(name='buffalo_l', allowed_modules=['detection', 'recognition'], providers=['CPUExecutionProvider'])
-    face_app.prepare(ctx_id=0, det_size=(480, 480))
-    print(">>> [OK] InsightFace ArcFace 512-D listo y escuchando en la nube!")
+    face_app = FaceAnalysis(name='buffalo_s', allowed_modules=['detection', 'recognition'], providers=['CPUExecutionProvider'])
+    face_app.prepare(ctx_id=0, det_size=(640, 640))
+    print(">>> [OK] InsightFace ArcFace 512-D (buffalo_s) listo y escuchando en la nube!")
 except Exception as e:
     print(f"Error cargando InsightFace: {e}")
 
@@ -31,7 +25,7 @@ def health():
     return jsonify({
         "status": "online",
         "service": "SportImagen Biometric AI Cloud",
-        "model": "buffalo_l",
+        "model": "buffalo_s",
         "dim": 512,
         "engine": "ArcFace"
     })
@@ -102,4 +96,4 @@ def get_embedding():
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
-    app.run(host='0.0.0.0', port=port, threaded=False, processes=1)
+    app.run(host='0.0.0.0', port=port, threaded=True)
