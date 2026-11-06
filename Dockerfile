@@ -3,11 +3,12 @@ FROM python:3.10-slim
 WORKDIR /app
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    libgomp1 \
+    libgl1 \
     libglib2.0-0 \
+    libgomp1 \
     libsm6 \
     libxext6 \
-    libxrender-dev \
+    libxrender1 \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
@@ -22,4 +23,3 @@ RUN python -c "from insightface.app import FaceAnalysis; app = FaceAnalysis(name
 EXPOSE 5000
 
 CMD ["gunicorn", "app:app", "--bind", "0.0.0.0:5000", "--workers", "1", "--threads", "4", "--timeout", "120"]
-
